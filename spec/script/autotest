@@ -1,0 +1,1 @@
+spec/script/rstakeout "rake" spec/*.html src/*.js
