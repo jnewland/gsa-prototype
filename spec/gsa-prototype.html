@@ -11,12 +11,16 @@
 <script type="text/javascript">// <![CDATA[
 
 describe('GSA in general', {
+  
   before_each : function() {
-    gsa = new Gsa('foo.com');
+    gsa = new Gsa({domain: 'foo.com'});
   },
-  'should initialize with domain': function() {
-    expect(gsa.domain).should_be("foo.com");
+  
+  'should initialize with default and passed options': function() {
+    expect(gsa.options.get('domain')).should_be("foo.com");
+    expect(gsa.options.get('format')).should_be("json");
   }
+  
 })
 
 // ]]></script>
