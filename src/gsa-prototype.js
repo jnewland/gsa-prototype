@@ -30,18 +30,19 @@ var Gsa = Class.create({
   },
   
   _request: function(url) {
-    return this.request = new Json.Request(url);
+    return this.request = new Json.Request(url, { onComplete: this._response.bind(this) });
   },
   
   _response: function () {
-    return this.response = this.request.response;
+    return this.results = new Gsa.Results(this.request.response);
   },
   
   search: function (q, options) {
     if (q == null || q.blank())
       return false;
-    this.q = q;
+    this.options.set('q', q);
     this.options.update(this.parseOptions(options));
+    (this.options.onSearch || Prototype.emptyFunction)(this);
     this._request(this.buildUri());
     return true;
   },
@@ -56,6 +57,27 @@ var Gsa = Class.create({
   }
 });
 
+// TODO split Gsa.Results into a separate source file/spec
+Gsa.Results = Class.create({
+  initialize: function(json) {
+    this.json = json;
+    this.parseJSON();
+  },
+  
+  parseJSON: function () {
+    //this is where the magic happens!
+    this.results = this.json.RES.R;
+  },
+  
+  _each: function(iterator) {
+    this.results._each(iterator);
+  },
+});
+
+Object.extend(Gsa.Results, Enumerable);
+
+
+// TODO split Json into a separate source file/spec for separate distribution
 var Json = {
   activeRequestCount: 0,
   currentRequest: false
@@ -104,8 +126,8 @@ Json.Responders.register({
 Object.extend(Json, {
   callback: function(json) {
     try {
-      (Json.currentRequest.options.onComplete || Prototype.emptyFunction)(Json.currentRequest, json);
       Json.Responders.dispatch('onComplete', Json.currentRequest, json);
+      (Json.currentRequest.options.get('onComplete') || Prototype.emptyFunction)(Json.currentRequest, json);
     } catch (e) {
       Json.currentRequest.dispatchException(e);
     }
@@ -123,7 +145,7 @@ Json.Request = Class.create({
 
   request: function(url) {
     try {
-      (this.options.onCreate || Prototype.emptyFunction)(this);
+      (this.options.get('onCreate') || Prototype.emptyFunction)(this);
       Json.Responders.dispatch('onCreate', this);
       var head = $$('head')[0];                 
       var script = document.createElement('script');
@@ -138,7 +160,7 @@ Json.Request = Class.create({
   },
 
   dispatchException: function(exception) {
-    (this.options.onException || Prototype.emptyFunction)(this, exception);
+    (this.options.get('onException') || Prototype.emptyFunction)(this, exception);
     Json.Responders.dispatch('onException', this, exception);
   }
 });

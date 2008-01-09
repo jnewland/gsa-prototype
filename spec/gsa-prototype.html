@@ -20,7 +20,7 @@ describe('GSA in general', {
     Json.Request.addMethods({
       request: function(url) {
         try {
-          (this.options.onCreate || Prototype.emptyFunction)(this);
+          (this.options.get('onCreate') || Prototype.emptyFunction)(this);
           Json.Responders.dispatch('onCreate', this);
           var head = $$('head')[0];                 
           var script = document.createElement('script');
@@ -33,7 +33,12 @@ describe('GSA in general', {
           this.dispatchException(e);
         }
       }
-    }); 
+    });
+    Json.Responders.register({
+      onException:   function(foo,e) {
+        console.log(e);
+      }
+    });
   },
   
   'should require a domain': function() {
@@ -65,7 +70,7 @@ describe('GSA in general', {
     expect($('json_request').id).should_be('json_request');
     Json.callback({foo: 'bar'});
     expect(Json.activeRequestCount).should_be(0);
-    expect(gsa._response()).should_be({foo: 'bar'});
+    expect(gsa.request.response).should_be({foo: 'bar'});
   },
   
   'should be able to perform a basic search': function() {
@@ -77,7 +82,7 @@ describe('GSA in general', {
     expect($('json_request').id).should_be('json_request');
     Json.callback(results.jnewland);
     expect(gsa.results).should_have(10, "results");
-    expect(gsa.results.first.get('url')).should_be('http://kevin.lexblog.com/2007/07/articles/cool-stuff/lexblog-it-director-talks-about-todays-platform-upgrade/');
+    // expect(gsa.results.first.get('url')).should_be('http://kevin.lexblog.com/2007/07/articles/cool-stuff/lexblog-it-director-talks-about-todays-platform-upgrade/');
   }
   
 })

@@ -17,3 +17,8 @@ task :spec do
     `open #{file} -a Safari.app -g`
   end
 end
+
+#TODO create 'build' task to glue separate JS files into one for distribution
+#TODO create a task to build with builder.js prepended
+#TODO create a task to build with prototype.js and builder.js prepended
+#TODO create a task to compress the JS file we build
