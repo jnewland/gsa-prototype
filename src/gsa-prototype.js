@@ -150,7 +150,7 @@ Json.Request = Class.create({
       var head = $$('head')[0];                 
       var script = document.createElement('script');
       script.type = 'text/javascript';
-      script.src = url+'&callback=Json.callback'+ '&timestamp=' + (new Date()).getTime();
+      script.src = url+'&callback=Json.callback'+ '&cachebuster=' + (new Date() * 1);
       script.id = 'json_request';
       head.appendChild(script);
     }
