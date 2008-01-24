@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<title>JSSpec results</title>
+<link rel="stylesheet" type="text/css" href="lib/JSSpec.css" />
+<script type="text/javascript" src="lib/diff_match_patch.js"></script>
+<script type="text/javascript" src="lib/JSSpec.js"></script>
+<script type="text/javascript" src="../lib/prototype.js"></script>
+<script type="text/javascript" src="../lib/builder.js"></script>
+<script type="text/javascript" src="base.js"></script>
+<script type="text/javascript" src="../src/json.js"></script>
+<script type="text/javascript" src="fixtures/results.js"></script>
+<script type="text/javascript">// <![CDATA[
+
+describe('Json in general', {
+  
+  before_each : function() {
+    Json.Responders.register({
+      onException:   function(foo,e) {
+        if (Prototype.Browser.Gecko) {
+          console.log(e);
+        } else {
+          alert(e);
+        }
+      }
+    });
+  },
+  
+  'should cleanly wrap up the JSON request process': function() {
+    expect(Json.activeRequestCount).should_be(0);
+    json = new Json.Request('nonexistant.js');
+    expect(Json.activeRequestCount).should_be(1);
+    expect($('json_request').id).should_be('json_request');
+    Json.callback({foo: 'bar'});
+    expect(Json.activeRequestCount).should_be(0);
+    expect(json.response).should_be({foo: 'bar'});
+  }
+  
+})
+
+// ]]></script>
+</head>
+<body><div style="display:none;"><p>A</p><p>B</p></div></body>
+</html>

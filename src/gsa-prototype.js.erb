@@ -1,0 +1,16 @@
+/*  gsa-prototype, version <%= GSA_VERSION %>
+ *  (c) 2008 Jesse Newland
+ *  jnewland@gmail.com
+ *
+ *  gsa-prototype is freely distributable under the terms of an MIT-style license.
+ *--------------------------------------------------------------------------*/
+
+//Prototype and Scriptaculous' Builder are required
+if(typeof Prototype == 'undefined')
+   throw("prototype.js version > 1.6 is required");
+if(typeof Builder == 'undefined')
+    throw("script.aculo.us' builder.js library is required");
+
+var Gsa = {};
+
+<%= include 'gsa.js', 'results.js', 'json.js' %>

@@ -1,1 +1,1 @@
-spec/script/rstakeout "rake" spec/*.html src/*.js
+spec/script/rstakeout "rake spec" spec/*.html src/*.js

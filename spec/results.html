@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<title>JSSpec results</title>
+<link rel="stylesheet" type="text/css" href="lib/JSSpec.css" />
+<script type="text/javascript" src="lib/diff_match_patch.js"></script>
+<script type="text/javascript" src="lib/JSSpec.js"></script>
+<script type="text/javascript" src="../lib/prototype.js"></script>
+<script type="text/javascript" src="../lib/builder.js"></script>
+<script type="text/javascript" src="base.js"></script>
+<script type="text/javascript" src="../src/gsa.js"></script>
+<script type="text/javascript" src="../src/results.js"></script>
+<script type="text/javascript" src="../src/json.js"></script>
+<script type="text/javascript" src="fixtures/results.js"></script>
+<script type="text/javascript">// <![CDATA[
+
+describe('GSA results', {
+  
+  before_each : function() {
+    //
+  },
+  
+  'should be able to perform a basic search': function() {
+    var r = new Gsa.Results(results.jnewland);
+    expect(r.size()).should_be(10);
+  }
+  
+})
+
+// ]]></script>
+</head>
+<body><div style="display:none;"><p>A</p><p>B</p></div></body>
+</html>

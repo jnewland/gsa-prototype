@@ -8,7 +8,10 @@
 <script type="text/javascript" src="lib/JSSpec.js"></script>
 <script type="text/javascript" src="../lib/prototype.js"></script>
 <script type="text/javascript" src="../lib/builder.js"></script>
-<script type="text/javascript" src="../src/gsa-prototype.js"></script>
+<script type="text/javascript" src="base.js"></script>
+<script type="text/javascript" src="../src/gsa.js"></script>
+<script type="text/javascript" src="../src/results.js"></script>
+<script type="text/javascript" src="../src/json.js"></script>
 <script type="text/javascript" src="fixtures/results.js"></script>
 <script type="text/javascript">// <![CDATA[
 
@@ -36,7 +39,11 @@ describe('GSA in general', {
     });
     Json.Responders.register({
       onException:   function(foo,e) {
-        console.log(e);
+        if (Prototype.Browser.Gecko) {
+          console.log(e);
+        } else {
+          alert(e);
+        }
       }
     });
   },
@@ -64,25 +71,24 @@ describe('GSA in general', {
   },
   
   'should cleanly wrap up the JSON request process': function() {
-    expect(Json.activeRequestCount).should_be(0);
     gsa._request();
-    expect(Json.activeRequestCount).should_be(1);
-    expect($('json_request').id).should_be('json_request');
     Json.callback({foo: 'bar'});
-    expect(Json.activeRequestCount).should_be(0);
     expect(gsa.request.response).should_be({foo: 'bar'});
   },
   
-  'should be able to perform a basic search': function() {
+  'should requre a query': function() {
     expect(gsa.search('')).should_be(false);
     expect(gsa.search(null)).should_be(false);
-    expect(Json.activeRequestCount).should_be(0);
+  },
+  
+  'should be able to perform a basic search': function() {
     expect(gsa.search('jesse newland')).should_be(true);
-    expect(Json.activeRequestCount).should_be(1);
-    expect($('json_request').id).should_be('json_request');
     Json.callback(results.jnewland);
-    expect(gsa.results).should_have(10, "results");
-    // expect(gsa.results.first.get('url')).should_be('http://kevin.lexblog.com/2007/07/articles/cool-stuff/lexblog-it-director-talks-about-todays-platform-upgrade/');
+    expect(gsa.results.size()).should_be(10);
+  },
+  
+  'should allow onSearch and other callbacks to be registered': function() {
+    expect(this).should_fail("TODO");
   }
   
 })
