@@ -40,7 +40,8 @@ task :clean_package_source do
 end
 
 task :spec do
-  files = FileList['spec/*.html']
+  files = ENV['STAKEOUT'] rescue 'spec/*.html'
+  files = FileList[files]
   
   files.each do |file|
     if file =~ /\/([^\/]+)\.js$/
