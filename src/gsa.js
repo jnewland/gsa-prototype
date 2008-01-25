@@ -9,7 +9,9 @@ Gsa = Class.create({
     //default parameters for the request
     this.options = $H({
       output: 'xml_no_dtd',
-      proxystylesheet: 'json'
+      proxystylesheet: 'json',
+      client: 'json',
+      site: 'default_collection'
     }).update(this.parseOptions(options));
 
     //set some properties based on the options
@@ -35,7 +37,24 @@ Gsa = Class.create({
   },
   
   parseOptions: function (options) {
-    return $H(options);
+    var raw_options = $H(options);
+    //sort
+    if (!Object.isUndefined(raw_options.get('sort'))) {
+      var sort = raw_options.get('sort');
+      if (Object.isString(sort)) {
+        raw_options.set('sort',('date:' + sort.replace('date:','')));
+      } else if (Object.isHash($H(sort))) {
+        try {
+          sort = $H(sort);
+          var mode = (sort.get('mode') == 'date') ? 'S' : 'L';
+          var direction = (sort.get('direction') == 'ascending') ? 'A' : 'D';
+          raw_options.set('sort','date:'+direction+':'+mode+':d1');
+        } catch (e) {
+          raw_options.set('sort','date:D:L:d1');
+        }
+      }
+    }
+    return raw_options;
   },
   
   buildUri: function () {
