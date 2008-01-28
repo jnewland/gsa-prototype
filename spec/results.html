@@ -31,6 +31,7 @@ describe('GSA results', {
     expect(r.first().get('snippet')).should_be('Today I spoke with <b>Jesse Newland</b>, LexBlog&#39;s IT Director, about the sp. <b>...</b> <b>Jesse</b><br> <b>Newland</b>: Speed, reliability, [and] scalability. Speed. <b>...</b>');
     expect(r.first().get('title')).should_be("LexBlog IT Director talks about today&#39;s platform upgrade : Real <b>...</b>");
     expect(r.first().get('url')).should_be("http://kevin.lexblog.com/2007/07/articles/cool-stuff/lexblog-it-director-talks-about-todays-platform-upgrade/");
+    expect(r.first().get('cache_url')).should_be("search?q=cache:k52-oliCmR0J:http://kevin.lexblog.com/2007/07/articles/cool-stuff/lexblog-it-director-talks-about-todays-platform-upgrade/")
   },
   
   'should have a custom toTemplateReplacements': function() {
