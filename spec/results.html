@@ -14,16 +14,23 @@
 <script type="text/javascript" src="../src/json.js"></script>
 <script type="text/javascript" src="fixtures/results.js"></script>
 <script type="text/javascript">// <![CDATA[
-
+var r;
 describe('GSA results', {
   
   before_each : function() {
-    //
+    r = new Gsa.Results(results.jnewland);
   },
   
-  'should be able to perform a basic search': function() {
-    var r = new Gsa.Results(results.jnewland);
+  'should parse results into our cool Array / Hash combo': function() {
     expect(r.size()).should_be(10);
+    expect(r.get('query')).should_be('jesse newland');
+    expect(r.first().get('crawlDate')).should_be('7 Jan 2008');
+    expect(r.first().get('details').get('date')).should_be('2007-07-13');
+    expect(r.first().get('lang')).should_be('en');
+    expect(r.first().get('rank')).should_be(0);
+    expect(r.first().get('snippet')).should_be('Today I spoke with <b>Jesse Newland</b>, LexBlog&#39;s IT Director, about the sp. <b>...</b> <b>Jesse</b><br> <b>Newland</b>: Speed, reliability, [and] scalability. Speed. <b>...</b>');
+    expect(r.first().get('title')).should_be("LexBlog IT Director talks about today&#39;s platform upgrade : Real <b>...</b>");
+    expect(r.first().get('url')).should_be("http://kevin.lexblog.com/2007/07/articles/cool-stuff/lexblog-it-director-talks-about-todays-platform-upgrade/");
   }
   
 })
