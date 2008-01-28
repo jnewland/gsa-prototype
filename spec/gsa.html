@@ -73,9 +73,9 @@ describe('GSA in general', {
   },
   
   'should cleanly wrap up the JSON request process': function() {
-    gsa._request();
-    Json.callback({foo: 'bar'});
-    expect(gsa.request.response).should_be({foo: 'bar'});
+    gsa.search('foo');
+    Json.callback(results.jnewland);
+    expect(gsa.request.response).should_be(results.jnewland);
   },
   
   'should requre a query': function() {
@@ -84,7 +84,11 @@ describe('GSA in general', {
   },
   
   'should allow onSearch and other callbacks to be registered': function() {
-    expect(this).should_fail("TODO");
+    callbacks = new Gsa('foo.com', { onSearch: function (gsa) { gsa.searching = 'searching' }, onComplete: function (gsa) { gsa.complete = 'complete' } });
+    callbacks.search('foo');
+    expect(callbacks.searching).should_be('searching');
+    Json.callback(results.jnewland);
+    expect(callbacks.complete).should_be('complete');
   },
   
   'should be able to perform a basic search': function() {

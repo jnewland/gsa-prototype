@@ -19,11 +19,17 @@ Gsa = Class.create({
   },
   
   _request: function(url) {
-    return this.request = new Json.Request(url, { onComplete: this._response.bind(this) });
+    this.request = new Json.Request(url, { onComplete: this._response.bind(this) });
+    (this.options.get('onSearch') || Prototype.emptyFunction)(this);
+    (this.searchOptions.get('onSearch') || Prototype.emptyFunction)(this);
+    return this.request;
   },
   
   _response: function () {
-    return this.results = new Gsa.Results(this.request.response);
+    this.results = new Gsa.Results(this.request.response);
+    (this.options.get('onComplete') || Prototype.emptyFunction)(this);
+    (this.searchOptions.get('onComplete') || Prototype.emptyFunction)(this);
+    return this.results;
   },
   
   search: function (q, options) {
@@ -33,7 +39,6 @@ Gsa = Class.create({
     this.searchOptions.update(this.options);
     this.searchOptions.set('q', q);
     this.searchOptions.update(this.parseOptions(options));
-    (this.searchOptions.onSearch || this.options.onSearch || Prototype.emptyFunction)(this);
     this._request(this.buildUri());
     return true;
   },
