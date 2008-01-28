@@ -7,7 +7,8 @@ Gsa.Results = Class.create({
     S: 'snippet',
     T: 'title',
     UD: 'url',
-    MT: 'meta'
+    MT: 'meta',
+    UE: 'encoded_url'
   }),
   
   initialize: function(json) {
@@ -37,6 +38,26 @@ Gsa.Results = Class.create({
         r.set(value, $H(r.unset(key)));
       }
     }.bind(r));
+    
+    //cache_url
+    r.unset('U');
+    if (!Object.isUndefined(r.get('HAS')) && !Object.isUndefined(r.get('HAS').C) && !Object.isUndefined(r.get('HAS').C.SZ)) {
+      r.set('cache_url', 'search?q=cache:'+r.get('HAS').C.CID+':'+r.get('encoded_url'))
+    }
+    r.unset('HAS');
+    
+    //toTemplateReplacements
+    r.toTemplateReplacements = function () {
+      hash = r.clone();
+      hash.each(function (pair) {
+        var key = pair.key, value = pair.value;
+        if (!Object.isString(value) && !Object.isNumber(value)) {
+          hash.set(key,value._object);
+        }
+      });
+      return hash._object;
+    }.bind(r);
+    
     return r;
   },
   
