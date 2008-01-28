@@ -103,21 +103,21 @@ describe('GSA in general', {
     expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&sort=date%3AD%3AS%3Ad1');
     expect(gsa.search('jesse newland', { sort: [1,2,3] })).should_be(true);
     expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&sort=date%3AD%3AL%3Ad1');
-    },
+  },
     
-    'should allow retrieval of meta tags': function() {
-      expect(gsa.search('jesse newland', { getfields: '*' })).should_be(true);
-      expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&getfields=*');
-      expect(gsa.search('jesse newland', { getfields: ['foo','bar'] })).should_be(true);
-      expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&getfields=foo.bar');
-    },
-    
-    'should allow filtering via meta tags': function() {
-      expect(gsa.search('jesse newland', { requiredfields: { mode: 'AND', fields: { foo: '1', bar: '2' } } })).should_be(true);
-      expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&requiredfields=foo%3A1.bar%3A2');
-      expect(gsa.search('jesse newland', { partialfields: { mode: 'OR', fields: { foo: '1', bar: '2' } } })).should_be(true);
-      expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&partialfields=foo%3A1|bar%3A2');
-    },
+  'should allow retrieval of meta tags': function() {
+    expect(gsa.search('jesse newland', { getfields: '*' })).should_be(true);
+    expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&getfields=*');
+    expect(gsa.search('jesse newland', { getfields: ['foo','bar'] })).should_be(true);
+    expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&getfields=foo.bar');
+  },
+  
+  'should allow filtering via meta tags': function() {
+    expect(gsa.search('jesse newland', { requiredfields: { fields: { foo: '1', bar: '2' } } })).should_be(true);
+    expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&requiredfields=foo%3A1.bar%3A2');
+    expect(gsa.search('jesse newland', { partialfields: { mode: 'OR', fields: { foo: '1', bar: '2' } } })).should_be(true);
+    expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&partialfields=foo%3A1%7Cbar%3A2');
+  },
   
 })
 

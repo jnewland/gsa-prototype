@@ -29,36 +29,73 @@ Gsa = Class.create({
   search: function (q, options) {
     if (q == null || q.blank())
       return false;
-    this.options.set('q', q);
-    this.options.update(this.parseOptions(options));
-    (this.options.onSearch || Prototype.emptyFunction)(this);
+    this.searchOptions = $H();
+    this.searchOptions.update(this.options);
+    this.searchOptions.set('q', q);
+    this.searchOptions.update(this.parseOptions(options));
+    (this.searchOptions.onSearch || this.options.onSearch || Prototype.emptyFunction)(this);
     this._request(this.buildUri());
     return true;
   },
   
   parseOptions: function (options) {
-    var raw_options = $H(options);
+    var options = $H(options);
     //sort
-    if (!Object.isUndefined(raw_options.get('sort'))) {
-      var sort = raw_options.get('sort');
+    if (!Object.isUndefined(options.get('sort'))) {
+      var sort = options.get('sort');
       if (Object.isString(sort)) {
-        raw_options.set('sort',('date:' + sort.replace('date:','')));
+        options.set('sort',('date:' + sort.replace('date:','')));
       } else if (Object.isHash($H(sort))) {
         try {
           sort = $H(sort);
           var mode = (sort.get('mode') == 'date') ? 'S' : 'L';
           var direction = (sort.get('direction') == 'ascending') ? 'A' : 'D';
-          raw_options.set('sort','date:'+direction+':'+mode+':d1');
+          options.set('sort','date:'+direction+':'+mode+':d1');
         } catch (e) {
-          raw_options.set('sort','date:D:L:d1');
+          options.set('sort','date:D:L:d1');
         }
       }
     }
-    return raw_options;
+    //getfields
+    if (!Object.isUndefined(options.get('getfields'))) {
+      var getfields = options.get('getfields');
+      if (!Object.isString(getfields) && Object.isArray(getfields)) {
+        options.set('getfields', getfields.join('.'));
+      }
+    }
+    //requiredfields
+    if (!Object.isUndefined(options.get('requiredfields'))) {
+      var requiredfields = $H(options.get('requiredfields'));
+      if (Object.isHash(requiredfields)) {
+        options.set('requiredfields', this.toFieldValues(requiredfields.get('fields'), requiredfields.get('mode')));
+      }
+    }
+    //partialfields
+    if (!Object.isUndefined(options.get('partialfields'))) {
+      var partialfields = $H(options.get('partialfields'));
+      if (Object.isHash(partialfields)) {
+        options.set('partialfields', this.toFieldValues(partialfields.get('fields'), partialfields.get('mode')));
+      }
+    }
+    return options;
   },
   
   buildUri: function () {
-    var uriString = 'http://' + this.domain + '/search?' + this.options.toQueryString();
+    var uriString = 'http://' + this.domain + '/search?' + this.searchOptions.toQueryString();
     return uriString;
+  },
+  
+  toFieldValues: function (hash, mode) {
+    hash = $H(hash);
+    var joinstring;
+    if (mode == 'OR') {
+      joinstring = '|';
+    } else {
+      joinstring = '.';
+    }
+    return hash.map(function (pair){
+      var key = pair.key, value = pair.value;
+      return key + ':' + value;
+    }).join(joinstring);
   }
 });
