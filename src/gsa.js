@@ -11,11 +11,13 @@ Gsa = Class.create({
       output: 'xml_no_dtd',
       proxystylesheet: 'json',
       client: 'json',
-      site: 'default_collection'
+      site: 'default_collection',
+      protocol: 'http://'
     }).update(this.parseOptions(options));
 
     //set some properties based on the options
     this.domain = domain;
+    this.protocol = this.options.unset('protocol');
   },
   
   _request: function(url) {
@@ -86,7 +88,10 @@ Gsa = Class.create({
   },
   
   buildUri: function () {
-    var uriString = 'http://' + this.domain + '/search?' + this.searchOptions.toQueryString();
+    var uriOptions = this.searchOptions.clone();
+    uriOptions.unset('onSearch');
+    uriOptions.unset('onComplete');
+    var uriString = this.protocol + this.domain + '/search?' + uriOptions.toQueryString();
     return uriString;
   },
   

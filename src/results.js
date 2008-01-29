@@ -34,7 +34,7 @@ Gsa.Results = Class.create({
       var key = pair.key, value = pair.value;
       if (Object.isString(r.get(key)) || Object.isNumber(r.get(key))) {
         r.set(value, new String(r.unset(key)).strip());
-      } else {
+      } else if (!Object.isUndefined(r.get(key))){
         r.set(value, $H(r.unset(key)));
       }
     }.bind(r));
@@ -62,7 +62,8 @@ Gsa.Results = Class.create({
   },
   
   _each: function(iterator) {
-    this.get('results')._each(iterator);
+    for (var i = 0, length = this.get('results').length; i < length; i++)
+      iterator(this.get('results')[i]);
   },
   
   first: function() {
@@ -94,6 +95,10 @@ Gsa.Results = Class.create({
   size: function() {
     return this.get('results').length;
   },
+  
+  toTemplateReplacements: function() {
+    return this._object;
+  }
 });
 
-Object.extend(Gsa.Results, Enumerable);
+Object.extend(Gsa.Results.prototype, Enumerable);
