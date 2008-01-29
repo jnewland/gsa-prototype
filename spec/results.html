@@ -24,7 +24,6 @@ describe('GSA results', {
   'should parse results into our cool Array / Hash combo': function() {
     expect(r.size()).should_be(10);
     expect(r.get('query')).should_be('jesse newland');
-    expect(r.first().get('crawlDate')).should_be('7 Jan 2008');
     expect(r.first().get('details').get('date')).should_be('2007-07-13');
     expect(r.first().get('lang')).should_be('en');
     expect(r.first().get('rank')).should_be(0);
@@ -35,7 +34,8 @@ describe('GSA results', {
   },
   
   'should have a custom toTemplateReplacements': function() {
-    expect(new String('#{title} #{details.date}').interpolate(r.first())).should_be('LexBlog IT Director talks about today&#39;s platform upgrade : Real <b>...</b> 2007-07-13');
+    expect(new String('#{title} #{details.date} #{meta.blog_id}').interpolate(r.first())).should_be('LexBlog IT Director talks about today&#39;s platform upgrade : Real <b>...</b> 2007-07-13 395');
+    expect(new String('#{meta.category[0]}').interpolate(r.get('results')[7])).should_be('Bainbridge Island Ferry');
   }
   
 })

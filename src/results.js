@@ -34,6 +34,26 @@ Gsa.Results = Class.create({
       var key = pair.key, value = pair.value;
       if (Object.isString(r.get(key)) || Object.isNumber(r.get(key))) {
         r.set(value, new String(r.unset(key)).strip());
+      } else if (key == 'FS' || key == 'MT'){
+        var array = $A(r.unset(key));
+        var hash = $H();
+        array.each(function(item) {
+          item = $H(item);
+          var key = item.keys()[0];
+          var value = item.values()[0];
+          if (Object.isUndefined(hash.get(key))) {
+           hash.update(item); 
+          } else {
+            if (Object.isString(hash.get(key))) {
+              hash.set(key,$A([hash.get(key)]));
+            }
+            if (Object.isArray(hash.get(key))) {
+              hash.get(key).push(value)
+              hash.set(key,hash.get(key));
+            }
+          }
+        });
+        r.set(value, hash);
       } else if (!Object.isUndefined(r.get(key))){
         r.set(value, $H(r.unset(key)));
       }

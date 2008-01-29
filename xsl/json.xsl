@@ -56,11 +56,11 @@
   
   <xsl:template match="R">{
     <xsl:if test="CRAWLDATE">"CRAWLDATE": "<xsl:value-of select="CRAWLDATE"/>",</xsl:if>
-    "FS": {<xsl:apply-templates select="FS"/>},
+    "FS": [<xsl:apply-templates select="FS"/>],
     "HAS": {<xsl:apply-templates select="HAS"/>},
     <xsl:if test="HN">"HN": {"U": "<xsl:value-of select="HN/@U"/>"},</xsl:if>
     "LANG": "<xsl:value-of select="LANG"/>",
-    "MT": {<xsl:apply-templates select="MT"/>},
+    "MT": [<xsl:apply-templates select="MT"/>],
     "RK": <xsl:value-of select="RK"/>,
     <xsl:if test="S">"S": "<xsl:value-of select="S"/>",</xsl:if>
     <xsl:if test="T">"T": "<xsl:value-of select="T"/>",</xsl:if>
@@ -70,11 +70,11 @@
   }<xsl:if test="position()!=last()">,</xsl:if></xsl:template>
   
   <xsl:template match="MT">
-    "<xsl:value-of select="@N"/>": "<xsl:value-of select="@V"/>"<xsl:if test="position()!=last()">,</xsl:if>
+    { "<xsl:value-of select="@N"/>": "<xsl:value-of select="@V"/>" }<xsl:if test="position()!=last()">,</xsl:if>
   </xsl:template>
   
   <xsl:template match="FS">
-    "<xsl:value-of select="@NAME"/>": "<xsl:value-of select="@VALUE"/>"<xsl:if test="position()!=last()">,</xsl:if>
+    { "<xsl:value-of select="@NAME"/>": "<xsl:value-of select="@VALUE"/>" }<xsl:if test="position()!=last()">,</xsl:if>
   </xsl:template>
   
   <xsl:template match="HAS">
