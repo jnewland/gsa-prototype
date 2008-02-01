@@ -20,12 +20,19 @@ Gsa.Results = Class.create({
   parseJSON: function () {
     this.set('query', this.json.Q);
     this.set('time', this.json.TM);
-    this.set('start', this.json.RES.SN);
-    this.set('end', this.json.RES.EN);
-    this.set('total', this.json.RES.M);
-    this.set('results', $A(this.json.RES.R).map(function (value){
-      return this.parseResult(value);
-    }.bind(this)));
+    if (!Object.isUndefined(this.json.RES)) { 
+      this.set('start', this.json.RES.SN);
+      this.set('end', this.json.RES.EN);
+      this.set('total', this.json.RES.M);
+      this.set('results', $A(this.json.RES.R).map(function (value){
+        return this.parseResult(value);
+      }.bind(this)));
+    } else {
+      this.set('results', $A());
+      this.set('start', 0);
+      this.set('end', 0);
+      this.set('total', 0);
+    }
   },
   
   parseResult: function (r) {

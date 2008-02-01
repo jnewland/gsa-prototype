@@ -20,12 +20,39 @@ Gsa = Class.create({
     this.domain = domain;
     this.protocol = this.options.unset('protocol');
     this.current_page = false;
+    
+    //check for templates
+    this.summary_template = this.options.unset('summary_template') || "<div class='gsa-prototype-summary'>Results <strong>#{start} - #{end}</strong> of about <strong>#{total}</strong> for <strong>#{query}</strong>. (<strong>#{time}</strong> seconds)</div>";
+    this.result_template = this.options.unset('result_template') || "<div class='gsa-prototype-result'><h3><a href='#{url}'>#{title}</a></h3><p>#{snippet}...</p></div>";
+    
+    //indicator
+    this.indicator = this.options.unset('indicator');
+    
+    //if the options hash has 'form' and 'results' keys, go nuts
+    if (!Object.isUndefined(this.options.get('form')) && !Object.isUndefined(this.options.get('results'))) {
+      this.form_element = $(this.options.unset('form'));
+      this.results_element = $(this.options.unset('results'));
+      this.form_element.observe('submit',function(event){
+        var form = Event.element(event);
+        var hash = $H(form.serialize(true));
+        this.search(hash.unset('q'), hash.update({ onComplete: function(gsa) {
+          Element.update(gsa.results_element);
+          Element.insert(gsa.results_element, Builder.build(new String(gsa.summary_template).interpolate(gsa.results)));
+          gsa.results.each(function (result, index) {
+            Element.insert(gsa.results_element, Builder.build(new String(gsa.result_template).interpolate(result)));
+            $$('body')[0].scrollTo();
+          });
+        } }));
+        Event.stop(event);
+      }.bind(this));
+    }
   },
   
   _request: function(url) {
     this.request = new Json.Request(url, { onComplete: this._response.bind(this) });
     (this.options.get('onSearch') || Prototype.emptyFunction)(this);
     (this.searchOptions.get('onSearch') || Prototype.emptyFunction)(this);
+    if(this.indicator) Element.show(this.indicator);
     return this.request;
   },
   
@@ -33,6 +60,7 @@ Gsa = Class.create({
     this.results = new Gsa.Results(this.request.response);
     (this.options.get('onComplete') || Prototype.emptyFunction)(this);
     (this.searchOptions.get('onComplete') || Prototype.emptyFunction)(this);
+    if(this.indicator) Element.hide(this.indicator);
     return this.results;
   },
   
