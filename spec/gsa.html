@@ -123,6 +123,32 @@ describe('GSA in general', {
     expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&partialfields=foo%3A1%7Cbar%3A2');
   },
   
+  'should have handy next, previous, and page functions': function() {
+    expect(gsa.search('jesse newland', { requiredfields: { fields: { foo: '1', bar: '2' } } })).should_be(true);
+    expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&requiredfields=foo%3A1.bar%3A2');
+    expect(gsa.next()).should_be(true);
+    expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&start=10&q=jesse%20newland&requiredfields=foo%3A1.bar%3A2');
+    expect(gsa.next()).should_be(true);
+    expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&start=20&q=jesse%20newland&requiredfields=foo%3A1.bar%3A2');
+    expect(gsa.previous()).should_be(true);
+    expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&start=10&q=jesse%20newland&requiredfields=foo%3A1.bar%3A2');
+    expect(gsa.page(3)).should_be(true);
+    expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&start=20&q=jesse%20newland&requiredfields=foo%3A1.bar%3A2');
+    expect(gsa.page(1)).should_be(true);
+    expect(gsa.buildUri()).should_be('http://foo.com/search?output=xml_no_dtd&proxystylesheet=json&client=json&site=default_collection&q=jesse%20newland&requiredfields=foo%3A1.bar%3A2');  
+  },
+  
+  'next, previous, and page functions should require a search first': function() {
+    expect(gsa.next()).should_be(false);
+    expect(gsa.previous()).should_be(false);
+    expect(gsa.page(1)).should_be(false);
+  },
+  
+  'previous function should not work on first page': function() {
+    expect(gsa.search('jesse newland', { requiredfields: { fields: { foo: '1', bar: '2' } } })).should_be(true);
+    expect(gsa.previous()).should_be(false);
+  },
+  
 })
 
 // ]]></script>
