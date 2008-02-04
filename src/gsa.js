@@ -25,9 +25,9 @@ Gsa = Class.create({
     this.summary_template = this.options.unset('summary_template') || "<div class='gsa-prototype-summary'>Results <strong>#{start} - #{end}</strong> of about <strong>#{total}</strong> for <strong>#{query}</strong>. (<strong>#{time}</strong> seconds)</div>";
     this.result_template = this.options.unset('result_template') || "<div class='gsa-prototype-result'><h3><a href='#{url}'>#{title}</a></h3><p>#{snippet}...</p></div>";
     this.pagination_template = this.options.unset('pagination_template') || "<div class='gsa-prototype-pagination'>#{previous_link}#{page_links}#{next_link}</div>";
-    this.previous_link_template = this.options.unset('previous_link_template') || "<#{tag} #{link} id='page_previous'>&laquo; Previous</#{tag}>";
-    this.next_link_template = this.options.unset('next_link_template') || "<#{tag} #{link} id='page_next'>Next &raquo;</#{tag}>";
-    this.page_link_template = this.options.unset('page_link_template') || "<#{tag} #{link} class='page_link' id='page_#{page}'>#{page}</#{tag}>";
+    this.previous_link_template = this.options.unset('previous_link_template') || "<#{tag} #{link} class='#{klass}' id='page_previous'>&laquo; Previous</#{tag}>";
+    this.next_link_template = this.options.unset('next_link_template') || "<#{tag} #{link} class='#{klass}' id='page_next'>Next &raquo;</#{tag}>";
+    this.page_link_template = this.options.unset('page_link_template') || "<#{tag} #{link} class='#{klass}' id='page_#{page}'>#{page}</#{tag}>";
     
     //indicator
     this.indicator = this.options.unset('indicator');
@@ -198,21 +198,21 @@ Gsa = Class.create({
     if (this.results.get('has_previous')) {
       html.previous_link = new String(this.previous_link_template).interpolate({tag: 'a', link: "href='#previous'"});
     } else {
-      html.previous_link = new String(this.previous_link_template).interpolate({tag: 'span', link: ''});
+      html.previous_link = new String(this.previous_link_template).interpolate({tag: 'span', link: '', klass: "disabled"});
     }
     if (this.results.get('has_next')) {
       html.next_link = new String(this.next_link_template).interpolate({tag: 'a', link: "href='#next'"});
     } else {
-      html.next_link = new String(this.next_link_template).interpolate({tag: 'span', link: ''});
+      html.next_link = new String(this.next_link_template).interpolate({tag: 'span', link: '', klass: "disabled"});
     }
     var num = 10;
     if (!Object.isUndefined(this.searchOptions.get('num')))
       num = this.searchOptions.get('num');
-    for (var i=1; ((i-1)*num) < eval(this.results.get('total')); i++ ) {
+    for (var i=1; ((i-1)*num) < eval(this.results.get('total') && i < 11); i++ ) {
       if (this.current_page == i) {
-        html.page_links = html.page_links + new String(this.page_link_template).interpolate({page: i, tag: 'span', link: ''});
+        html.page_links = html.page_links + new String(this.page_link_template).interpolate({page: i, tag: 'span', link: '', klass: "current"});
       } else {
-        html.page_links = html.page_links + new String(this.page_link_template).interpolate({page: i, tag: 'a', link: "href='#"+i+"'"});
+        html.page_links = html.page_links + new String(this.page_link_template).interpolate({page: i, tag: 'a', link: "href='#"+i+"'", klass: "page_link"});
       }
     }
     return Builder.build(new String(this.pagination_template).interpolate(html));
