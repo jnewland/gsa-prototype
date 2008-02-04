@@ -1,7 +1,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
   <xsl:output method="text" omit-xml-declaration="yes" indent="no" media-type="text/plain"/>
-	
+	<xsl:strip-space elements="*"/>
 	<!-- **********************************************************************
   			build variables based on query string
   ************************************************************************ -->
@@ -70,7 +70,7 @@
   }<xsl:if test="position()!=last()">,</xsl:if></xsl:template>
   
   <xsl:template match="MT">
-    { "<xsl:value-of select="@N"/>": "<xsl:value-of select="@V"/>" }<xsl:if test="position()!=last()">,</xsl:if>
+    { "<xsl:value-of select="@N"/>": "<xsl:call-template name="escape_quot"><xsl:with-param name="string" select="@V"/></xsl:call-template>" }<xsl:if test="position()!=last()">,</xsl:if>
   </xsl:template>
   
   <xsl:template match="FS">
@@ -85,6 +85,38 @@
   <xsl:template match="C">
     "SZ": "<xsl:value-of select="@SZ"/>",
     "CID": "<xsl:value-of select="@CID"/>"
+  </xsl:template>
+  
+  <!-- *** quote escaping *** -->
+  <xsl:template name="escape_quot">
+    <xsl:param name="string"/>
+    <xsl:call-template name="replace_string">
+      <xsl:with-param name="find" select="'&quot;'"/>
+      <xsl:with-param name="replace" select="'&amp;quot;'"/>
+      <xsl:with-param name="string" select="$string"/>
+    </xsl:call-template>
+  </xsl:template>
+
+  <!-- *** Find and replace *** -->
+  <xsl:template name="replace_string">
+    <xsl:param name="find"/>
+    <xsl:param name="replace"/>
+    <xsl:param name="string"/>
+    <xsl:choose>
+      <xsl:when test="contains($string, $find)">
+        <xsl:value-of select="substring-before($string, $find)"/>
+        <xsl:value-of select="$replace"/>
+        <xsl:call-template name="replace_string">
+          <xsl:with-param name="find" select="$find"/>
+          <xsl:with-param name="replace" select="$replace"/>
+          <xsl:with-param name="string"
+            select="substring-after($string, $find)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$string"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
 </xsl:stylesheet>
