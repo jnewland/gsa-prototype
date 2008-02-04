@@ -123,7 +123,7 @@ Gsa = Class.create({
   
   next: function () {
     if (Object.isNumber(this.current_page)) {
-      return this.page(++this.current_page);
+      return this.page(this.current_page+1);
     } else {
       return false;
     }
@@ -131,7 +131,7 @@ Gsa = Class.create({
   
   previous: function () {
     if (Object.isNumber(this.current_page) && this.current_page > 1) {
-      return this.page(--this.current_page);
+      return this.page(this.current_page-1);
     } else {
       return false;
     }
@@ -205,16 +205,7 @@ Gsa = Class.create({
     } else {
       html.next_link = new String(this.next_link_template).interpolate({tag: 'span', link: '', klass: "disabled"});
     }
-    var num = 10;
-    if (!Object.isUndefined(this.searchOptions.get('num')))
-      num = this.searchOptions.get('num');
-    for (var i=1; ((i-1)*num) < eval(this.results.get('total') && i < 11); i++ ) {
-      if (this.current_page == i) {
-        html.page_links = html.page_links + new String(this.page_link_template).interpolate({page: i, tag: 'span', link: '', klass: "current"});
-      } else {
-        html.page_links = html.page_links + new String(this.page_link_template).interpolate({page: i, tag: 'a', link: "href='#"+i+"'", klass: "page_link"});
-      }
-    }
+
     return Builder.build(new String(this.pagination_template).interpolate(html));
   },
   

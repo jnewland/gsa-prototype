@@ -168,7 +168,7 @@ describe('GSA in general', {
     }
     gsa.search('foo');
     Json.callback(results.jnewland);
-    expect(serializeNode(gsa.buildPaginationHTML())).should_be("<div class='gsa-prototype-pagination'><span class='disabled' id='page_previous'>« Previous</span><span class='current' id='page_1'>1</span><a class='page_link' href='#2' id='page_2'>2</a><a class='' href='#next' id='page_next'>Next »</a></div>");
+    expect(serializeNode(gsa.buildPaginationHTML())).should_be("<div class='gsa-prototype-pagination'><span class='disabled' id='page_previous'>« Previous</span><a class='' href='#next' id='page_next'>Next »</a></div>");
   },
   
 })
