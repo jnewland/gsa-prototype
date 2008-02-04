@@ -149,6 +149,28 @@ describe('GSA in general', {
     expect(gsa.previous()).should_be(false);
   },
   
+  'should build will_paginate style pagination html': function() {
+    function serializeNode(node){
+      if(node.nodeType == 3) return node.nodeValue;
+      node = $(node);
+      var tag = node.tagName.toLowerCase();
+      return '<' + ([tag].concat($A(node.attributes).map(function(attr){
+        // Filter out stuff that we don't need
+        if(attr.nodeName == '_extended' || attr.nodeName == '_counted' || 
+          typeof attr.nodeValue == 'function' ||!Element.hasAttribute(node, attr.nodeName)) return;
+        // remove trailing ; in style attributes on Firefox
+        var value = node.readAttribute(attr.nodeName);
+        if(attr.nodeName == 'style' && value.endsWith(';'))
+          value = value.substr(0, value.length-1); 
+        return attr.nodeName + '=\'' + value + '\''
+      }).compact().sort())).join(' ') + '>' + $A(node.childNodes).map(serializeNode).join('') + 
+      '</' + tag + '>';
+    }
+    gsa.search('foo');
+    Json.callback(results.jnewland);
+    expect(serializeNode(gsa.buildPaginationHTML())).should_be("<div class='gsa-prototype-pagination'><span id='page_previous'>« Previous</span><span class='page_link' id='page_1'>1</span><a class='page_link' href='#2' id='page_2'>2</a><a href='#next' id='page_next'>Next »</a></div>");
+  },
+  
 })
 
 // ]]></script>

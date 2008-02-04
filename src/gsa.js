@@ -24,9 +24,16 @@ Gsa = Class.create({
     //check for templates
     this.summary_template = this.options.unset('summary_template') || "<div class='gsa-prototype-summary'>Results <strong>#{start} - #{end}</strong> of about <strong>#{total}</strong> for <strong>#{query}</strong>. (<strong>#{time}</strong> seconds)</div>";
     this.result_template = this.options.unset('result_template') || "<div class='gsa-prototype-result'><h3><a href='#{url}'>#{title}</a></h3><p>#{snippet}...</p></div>";
+    this.pagination_template = this.options.unset('pagination_template') || "<div class='gsa-prototype-pagination'>#{previous_link}#{page_links}#{next_link}</div>";
+    this.previous_link_template = this.options.unset('previous_link_template') || "<#{tag} #{link} id='page_previous'>&laquo; Previous</#{tag}>";
+    this.next_link_template = this.options.unset('next_link_template') || "<#{tag} #{link} id='page_next'>Next &raquo;</#{tag}>";
+    this.page_link_template = this.options.unset('page_link_template') || "<#{tag} #{link} class='page_link' id='page_#{page}'>#{page}</#{tag}>";
     
     //indicator
     this.indicator = this.options.unset('indicator');
+    
+    //scroll element
+    this.scrollTo = this.options.unset('scrollTo') || $$('body')[0];
     
     //if the options hash has 'form' and 'results' keys, go nuts
     if (!Object.isUndefined(this.options.get('form')) && !Object.isUndefined(this.options.get('results'))) {
@@ -40,8 +47,31 @@ Gsa = Class.create({
           Element.insert(gsa.results_element, Builder.build(new String(gsa.summary_template).interpolate(gsa.results)));
           gsa.results.each(function (result, index) {
             Element.insert(gsa.results_element, Builder.build(new String(gsa.result_template).interpolate(result)));
-            $$('body')[0].scrollTo();
           });
+          Element.insert(gsa.results_element, gsa.buildPaginationHTML());
+          $$('a.page_link').each(function(link) { 
+            link.observe('click', function(event) {
+              gsa.scrollTo.scrollTo();
+              var page_link = Event.element(event);
+              gsa.page(page_link.innerHTML);
+              Event.stop(event);
+            })
+          });
+          $$('a#page_next').each(function(link) { 
+             link.observe('click', function(event) {
+               gsa.scrollTo.scrollTo();
+               gsa.next();
+               Event.stop(event);
+             })
+           });
+           $$('a#page_previous').each(function(link) { 
+              link.observe('click', function(event) {
+                gsa.scrollTo.scrollTo();
+                gsa.previous();
+                Event.stop(event);
+              })
+            });
+            gsa.scrollTo.scrollTo();
         } }));
         Event.stop(event);
       }.bind(this));
@@ -157,6 +187,35 @@ Gsa = Class.create({
       uriOptions.unset('start');
     var uriString = this.protocol + this.domain + '/search?' + uriOptions.toQueryString();
     return uriString;
+  },
+  
+  buildPaginationHTML: function () {
+    var html = {
+      previous_link: '',
+      page_links: '',
+      next_link: ''
+    }
+    if (this.results.get('has_previous')) {
+      html.previous_link = new String(this.previous_link_template).interpolate({tag: 'a', link: "href='#previous'"});
+    } else {
+      html.previous_link = new String(this.previous_link_template).interpolate({tag: 'span', link: ''});
+    }
+    if (this.results.get('has_next')) {
+      html.next_link = new String(this.next_link_template).interpolate({tag: 'a', link: "href='#next'"});
+    } else {
+      html.next_link = new String(this.next_link_template).interpolate({tag: 'span', link: ''});
+    }
+    var num = 10;
+    if (!Object.isUndefined(this.searchOptions.get('num')))
+      num = this.searchOptions.get('num');
+    for (var i=1; ((i-1)*num) < eval(this.results.get('total')); i++ ) {
+      if (this.current_page == i) {
+        html.page_links = html.page_links + new String(this.page_link_template).interpolate({page: i, tag: 'span', link: ''});
+      } else {
+        html.page_links = html.page_links + new String(this.page_link_template).interpolate({page: i, tag: 'a', link: "href='#"+i+"'"});
+      }
+    }
+    return Builder.build(new String(this.pagination_template).interpolate(html));
   },
   
   toFieldValues: function (hash, mode) {
