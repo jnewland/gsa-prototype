@@ -24,6 +24,8 @@ Gsa.Results = Class.create({
       this.set('start', this.json.RES.SN);
       this.set('end', this.json.RES.EN);
       this.set('total', this.json.RES.M);
+      this.set('has_next', !!this.json.RES.NB.NU);
+      this.set('has_previous', !!this.json.RES.NB.PU);
       this.set('results', $A(this.json.RES.R).map(function (value){
         return this.parseResult(value);
       }.bind(this)));
@@ -32,6 +34,8 @@ Gsa.Results = Class.create({
       this.set('start', 0);
       this.set('end', 0);
       this.set('total', 0);
+      this.set('has_next', false);
+      this.set('has_previous', false);
     }
   },
   
@@ -56,7 +60,10 @@ Gsa.Results = Class.create({
             }
             if (Object.isArray(hash.get(key))) {
               hash.get(key).push(value)
-              hash.set(key,hash.get(key));
+              //FIXME: totally inefficient
+              var array = hash.get(key);
+              array.toString = function() { return this.join(', ') }
+              hash.set(key,array);
             }
           }
         });

@@ -30,12 +30,20 @@ describe('GSA results', {
     expect(r.first().get('snippet')).should_be('Today I spoke with <b>Jesse Newland</b>, LexBlog&#39;s IT Director, about the sp. <b>...</b> <b>Jesse</b><br> <b>Newland</b>: Speed, reliability, [and] scalability. Speed. <b>...</b>');
     expect(r.first().get('title')).should_be("LexBlog IT Director talks about today&#39;s platform upgrade : Real <b>...</b>");
     expect(r.first().get('url')).should_be("http://kevin.lexblog.com/2007/07/articles/cool-stuff/lexblog-it-director-talks-about-todays-platform-upgrade/");
-    expect(r.first().get('cache_url')).should_be("search?q=cache:k52-oliCmR0J:http://kevin.lexblog.com/2007/07/articles/cool-stuff/lexblog-it-director-talks-about-todays-platform-upgrade/")
+    expect(r.first().get('cache_url')).should_be("search?q=cache:k52-oliCmR0J:http://kevin.lexblog.com/2007/07/articles/cool-stuff/lexblog-it-director-talks-about-todays-platform-upgrade/");
   },
   
   'should have a custom toTemplateReplacements': function() {
     expect(new String('#{title} #{details.date} #{meta.blog_id}').interpolate(r.first())).should_be('LexBlog IT Director talks about today&#39;s platform upgrade : Real <b>...</b> 2007-07-13 395');
     expect(new String('#{meta.category[0]}').interpolate(r.get('results')[7])).should_be('Bainbridge Island Ferry');
+  },
+  
+  'should note if there is a next / previous page of results': function() {
+    expect(r.get('has_next')).should_be(true);
+    expect(r.get('has_previous')).should_be(false);
+    r = new Gsa.Results(results.jnewland2);
+    expect(r.get('has_next')).should_be(false);
+    expect(r.get('has_previous')).should_be(true);
   }
   
 })
