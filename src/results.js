@@ -24,8 +24,8 @@ Gsa.Results = Class.create({
       this.set('start', this.json.RES.SN);
       this.set('end', this.json.RES.EN);
       this.set('total', this.json.RES.M);
-      this.set('has_next', !!this.json.RES.NB.NU);
-      this.set('has_previous', !!this.json.RES.NB.PU);
+      this.set('has_next', !!this.json.RES.NB && !!this.json.RES.NB.NU);
+      this.set('has_previous', !!this.json.RES.NB && !!this.json.RES.NB.PU);
       this.set('results', $A(this.json.RES.R).map(function (value){
         return this.parseResult(value);
       }.bind(this)));
