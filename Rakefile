@@ -8,7 +8,7 @@ GSA_ROOT     = File.expand_path(File.dirname(__FILE__))
 GSA_SRC_DIR  = File.join(GSA_ROOT, 'src')
 GSA_DIST_DIR = File.join(GSA_ROOT, 'dist')
 GSA_PKG_DIR  = File.join(GSA_ROOT, 'pkg')
-GSA_VERSION  = '0.0.1'
+GSA_VERSION  = '0.1.0'
 
 desc 'Build a combined JS file for distibution'
 task :dist do
