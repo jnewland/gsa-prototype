@@ -1,4 +1,4 @@
-/*  gsa-prototype, version <%= GSA_VERSION %>
+<%= include '../lib/prototype.js' if ENV['WITH_PROTOTYPE'] || ENV['WITH_BUILDER'] %><%= include '../lib/builder.js' if ENV['WITH_BUILDER'] %>/*  gsa-prototype, version <%= GSA_VERSION %>
  *  (c) 2008 Jesse Newland
  *  jnewland@gmail.com
  *
