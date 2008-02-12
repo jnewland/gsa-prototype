@@ -43,10 +43,10 @@
     "SN": "<xsl:value-of select="@SN"/>",
     "EN": "<xsl:value-of select="@EN"/>",
     <xsl:if test="FI">"FI": true,</xsl:if>
+    <xsl:if test="XT">"XT": true,</xsl:if>
     "M": "<xsl:value-of select="M"/>",
     <xsl:if test="NB">"NB": <xsl:apply-templates select="NB"/>,</xsl:if>
-    "R": [<xsl:apply-templates select="R"/>],
-    <xsl:if test="XT">"XT": true</xsl:if>
+    "R": [<xsl:apply-templates select="R"/>]
   }</xsl:template>
   
   <xsl:template match="NB">{
