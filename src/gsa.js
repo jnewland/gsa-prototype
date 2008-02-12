@@ -101,6 +101,9 @@ Gsa = Class.create({
     this.searchOptions.update(this.options);
     this.searchOptions.set('q', q);
     this.searchOptions.update(this.parseOptions(options));
+    (this.options.get('beforeSearch') || Prototype.emptyFunction)(this);
+    if (!this.options.get('beforeSearch'))
+      (this.searchOptions.get('beforeSearch') || Prototype.emptyFunction)(this);
     this.current_page = 1;
     this._request(this.buildUri());
     return true;
@@ -181,6 +184,7 @@ Gsa = Class.create({
   
   buildUri: function () {
     var uriOptions = this.searchOptions.clone();
+    uriOptions.unset('beforeSearch');
     uriOptions.unset('onSearch');
     uriOptions.unset('onComplete');
     if (uriOptions.get('start') == 0)
@@ -219,7 +223,13 @@ Gsa = Class.create({
     }
     return hash.map(function (pair){
       var key = pair.key, value = pair.value;
-      return key + ':' + value;
+      if (Object.isArray(value)) {
+        return value.map(function (a) {
+          return key + ':' + a;
+        }).join(joinstring);
+      } else {
+        return key + ':' + value; 
+      }
     }).join(joinstring);
   }
 });
