@@ -62,12 +62,15 @@ describe('GSA in general', {
       'bar.com',
       {
         proxyreload: true,
-        num: 20
+        num: 20,
+        port: 8443
       }
     );   
     expect(gsa.domain).should_be("foo.com");
+    expect(gsa.port).should_be(80);
     expect(gsa.options.get('proxyreload')).should_not_be(true);
     expect(gsa.options.get('proxystylesheet')).should_be('json');
+    expect(newgsa.port).should_be(8443);
     expect(newgsa.options.get('proxyreload')).should_be(true);
     expect(newgsa.options.get('num')).should_be(20);
   },

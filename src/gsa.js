@@ -13,12 +13,14 @@ Gsa = Class.create({
       client: 'json',
       site: 'default_collection',
       start: 0,
-      protocol: 'http://'
+      protocol: 'http://',
+      port: 80
     }).update(this.parseOptions(options));
 
     //set some properties based on the options
     this.domain = domain;
     this.protocol = this.options.unset('protocol');
+    this.port = this.options.unset('port');
     this.current_page = false;
     
     //check for templates
