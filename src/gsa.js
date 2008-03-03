@@ -37,46 +37,13 @@ Gsa = Class.create({
     //scroll element
     this.scrollTo = this.options.unset('scrollTo') || $$('body')[0];
     
-    //if the options hash has 'form' and 'results' keys, go nuts
-    if (!Object.isUndefined(this.options.get('form')) && !Object.isUndefined(this.options.get('results'))) {
-      this.form_element = $(this.options.unset('form'));
-      this.results_element = $(this.options.unset('results'));
-      this.form_element.observe('submit',function(event){
-        var form = Event.element(event);
-        var hash = $H(form.serialize(true));
-        this.search(hash.unset('q'), hash.update({ onComplete: function(gsa) {
-          Element.update(gsa.results_element);
-          Element.insert(gsa.results_element, Builder.build(new String(gsa.summary_template).interpolate(gsa.results)));
-          gsa.results.each(function (result, index) {
-            Element.insert(gsa.results_element, Builder.build(new String(gsa.result_template).interpolate(result)));
-          });
-          Element.insert(gsa.results_element, gsa.buildPaginationHTML());
-          $$('a.page_link').each(function(link) { 
-            link.observe('click', function(event) {
-              gsa.scrollTo.scrollTo();
-              var page_link = Event.element(event);
-              gsa.page(page_link.innerHTML);
-              Event.stop(event);
-            })
-          });
-          $$('a#page_next').each(function(link) { 
-             link.observe('click', function(event) {
-               gsa.scrollTo.scrollTo();
-               gsa.next();
-               Event.stop(event);
-             })
-           });
-           $$('a#page_previous').each(function(link) { 
-              link.observe('click', function(event) {
-                gsa.scrollTo.scrollTo();
-                gsa.previous();
-                Event.stop(event);
-              })
-            });
-            gsa.scrollTo.scrollTo();
-        } }));
-        Event.stop(event);
-      }.bind(this));
+    this.form_element = $(this.options.unset('form'));
+    this.results_element = $(this.options.unset('results'));
+    this.observe_form = this.options.unset('observe_form') || true;
+
+    //if the options hash has 'form' and 'results' keys and observing hasn't been explicitly disabled, go nuts
+    if (this.observe_form && !Object.isUndefined(this.form_element) && !Object.isUndefined(this.results_element)) {
+      this.form_element.observe('submit', this.observeFormFunction.bind(this));
     }
   },
   
@@ -233,5 +200,42 @@ Gsa = Class.create({
         return key + ':' + value; 
       }
     }).join(joinstring);
+  },
+
+  observeFormFunction: function(event){
+    var form = Event.element(event);
+    var hash = $H(form.serialize(true));
+    this.search(hash.unset('q'), hash.update({ onComplete: function(gsa) {
+      Element.update(gsa.results_element);
+      Element.insert(gsa.results_element, Builder.build(new String(gsa.summary_template).interpolate(gsa.results)));
+      gsa.results.each(function (result, index) {
+        Element.insert(gsa.results_element, Builder.build(new String(gsa.result_template).interpolate(result)));
+      });
+      Element.insert(gsa.results_element, gsa.buildPaginationHTML());
+      $$('a.page_link').each(function(link) {
+        link.observe('click', function(event) {
+          gsa.scrollTo.scrollTo();
+          var page_link = Event.element(event);
+          gsa.page(page_link.innerHTML);
+          Event.stop(event);
+        })
+      });
+      $$('a#page_next').each(function(link) {
+         link.observe('click', function(event) {
+           gsa.scrollTo.scrollTo();
+           gsa.next();
+           Event.stop(event);
+         })
+       });
+       $$('a#page_previous').each(function(link) {
+          link.observe('click', function(event) {
+            gsa.scrollTo.scrollTo();
+            gsa.previous();
+            Event.stop(event);
+          })
+        });
+        gsa.scrollTo.scrollTo();
+    } }));
+    Event.stop(event);
   }
 });
