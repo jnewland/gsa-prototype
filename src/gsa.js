@@ -205,37 +205,39 @@ Gsa = Class.create({
   observeFormFunction: function(event){
     var form = Event.element(event);
     var hash = $H(form.serialize(true));
-    this.search(hash.unset('q'), hash.update({ onComplete: function(gsa) {
-      Element.update(gsa.results_element);
-      Element.insert(gsa.results_element, Builder.build(new String(gsa.summary_template).interpolate(gsa.results)));
-      gsa.results.each(function (result, index) {
-        Element.insert(gsa.results_element, Builder.build(new String(gsa.result_template).interpolate(result)));
-      });
-      Element.insert(gsa.results_element, gsa.buildPaginationHTML());
-      $$('a.page_link').each(function(link) {
+    this.search(hash.unset('q'), hash.update({ onComplete: this.observeFormOnComplete }));
+    Event.stop(event);
+  },
+  
+  observeFormOnComplete: function(gsa) {
+    Element.update(gsa.results_element);
+    Element.insert(gsa.results_element, Builder.build(new String(gsa.summary_template).interpolate(gsa.results)));
+    gsa.results.each(function (result, index) {
+      Element.insert(gsa.results_element, Builder.build(new String(gsa.result_template).interpolate(result)));
+    });
+    Element.insert(gsa.results_element, gsa.buildPaginationHTML());
+    $$('a.page_link').each(function(link) {
+      link.observe('click', function(event) {
+        gsa.scrollTo.scrollTo();
+        var page_link = Event.element(event);
+        gsa.page(page_link.innerHTML);
+        Event.stop(event);
+      })
+    });
+    $$('a#page_next').each(function(link) {
+       link.observe('click', function(event) {
+         gsa.scrollTo.scrollTo();
+         gsa.next();
+         Event.stop(event);
+       })
+     });
+     $$('a#page_previous').each(function(link) {
         link.observe('click', function(event) {
           gsa.scrollTo.scrollTo();
-          var page_link = Event.element(event);
-          gsa.page(page_link.innerHTML);
+          gsa.previous();
           Event.stop(event);
         })
       });
-      $$('a#page_next').each(function(link) {
-         link.observe('click', function(event) {
-           gsa.scrollTo.scrollTo();
-           gsa.next();
-           Event.stop(event);
-         })
-       });
-       $$('a#page_previous').each(function(link) {
-          link.observe('click', function(event) {
-            gsa.scrollTo.scrollTo();
-            gsa.previous();
-            Event.stop(event);
-          })
-        });
-        gsa.scrollTo.scrollTo();
-    } }));
-    Event.stop(event);
+      gsa.scrollTo.scrollTo();
   }
 });
