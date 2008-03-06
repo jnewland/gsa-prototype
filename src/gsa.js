@@ -15,7 +15,7 @@ Gsa = Class.create({
       start: 0,
       protocol: 'http://',
       port: 80
-    }).update(this.parseOptions(options));
+    }).update(options);
 
     //set some properties based on the options
     this.domain = domain;
@@ -69,7 +69,7 @@ Gsa = Class.create({
     this.searchOptions = $H();
     this.searchOptions.update(this.options);
     this.searchOptions.set('q', q);
-    this.searchOptions.update(this.parseOptions(options));
+    this.searchOptions.update(options);
     (this.options.get('beforeSearch') || Prototype.emptyFunction)(this);
     if (!this.options.get('beforeSearch'))
       (this.searchOptions.get('beforeSearch') || Prototype.emptyFunction)(this);
@@ -158,7 +158,7 @@ Gsa = Class.create({
     uriOptions.unset('onComplete');
     if (uriOptions.get('start') == 0)
       uriOptions.unset('start');
-    var uriString = this.protocol + this.domain + '/search?' + uriOptions.toQueryString();
+    var uriString = this.protocol + this.domain + '/search?' + this.parseOptions(uriOptions).toQueryString();
     return uriString;
   },
   
