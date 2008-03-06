@@ -27,3 +27,5 @@ true
 "LexBlog IT Director talks about today&#39;s platform upgrade : Real <b>...</b>"
 >>> gsa.results.first().get('url')
 "http://kevin.lexblog.com/2007/07/articles/cool-stuff/lexblog-it-director-talks-about-todays-platform-upgrade/"
+
+See inline documentation in gsa.js for more details.
