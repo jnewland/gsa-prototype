@@ -1,5 +1,46 @@
 Gsa = Class.create({
-
+  /**
+   * Initializes a new Gsa object. Takes a required 'domain' argument, and an options hash. Default options are as follows:
+   *
+   *   output: 'xml_no_dtd',
+   *   proxystylesheet: 'json',
+   *   client: 'json',
+   *   site: 'default_collection',
+   *   start: 0,
+   *   protocol: 'http://',
+   *   port: 80,
+   *   scroll_to: $$('body')[0],
+   *   observe_form: true
+   *
+   * Note: a Gsa object must be initialized after the DOM has loaded. For example:
+   *
+   *  var gsa;
+   *  document.observe('dom:loaded', function () {
+   *    gsa = new Gsa('foo.com', {});
+   *  };
+   *
+   * Callbacks:
+   * 
+   * The following callbacks are supported via passing a function to the appropriate key in the options hash:
+   *
+   * beforeSearch, onSearch, onComplete
+   *
+   * Additional options:
+   *
+   * indicator: a dom element, expected to be hidden by default, that will be made visable upon start of a search
+   *            and hidden again at the search's end.
+   * form:      a Form to serialize and trigger a search upon submit. only works if observe_form == true and results is set
+   * results:   dom element in which results will be placed if observe_form == true and results is set
+   *
+   * When using the form obvserving functionality of GSA, the follow template options are avaialble. Their defaults are listed.
+   * 
+   * summary_template:        "<div class='gsa-prototype-summary'>Results <strong>#{start} - #{end}</strong> of about <strong>#{total}</strong> for <strong>#{query}</strong>. (<strong>#{time}</strong> seconds)</div>";
+   * result_template:         "<div class='gsa-prototype-result'><h3><a href='#{url}'>#{title}</a></h3><p>#{snippet}...</p></div>";
+   * pagination_template:     "<div class='gsa-prototype-pagination'>#{previous_link}#{page_links}#{next_link}</div>";
+   * previous_link_template:  "<#{tag} #{link} class='#{klass}' id='page_previous'>&laquo; Previous</#{tag}>";
+   * next_link_template:      "<#{tag} #{link} class='#{klass}' id='page_next'>Next &raquo;</#{tag}>";
+   * page_link_template:      "<#{tag} #{link} class='#{klass}' id='page_#{page}'>#{page}</#{tag}>";
+   */
   initialize: function(domain, options) {
 
     //required options
@@ -14,7 +55,9 @@ Gsa = Class.create({
       site: 'default_collection',
       start: 0,
       protocol: 'http://',
-      port: 80
+      port: 80,
+      scroll_to: $$('body')[0],
+      observe_form: true
     }).update(options);
 
     //set some properties based on the options
@@ -22,7 +65,18 @@ Gsa = Class.create({
     this.protocol = this.options.unset('protocol');
     this.port = this.options.unset('port');
     this.current_page = false;
-    
+
+    //indicator
+    this.indicator = this.options.unset('indicator');
+
+    //scroll element
+    this.scroll_to = this.options.unset('scroll_to');
+
+    //form stuffs
+    this.form_element = $(this.options.unset('form'));
+    this.results_element = $(this.options.unset('results'));
+    this.observe_form = this.options.unset('observe_form');
+
     //check for templates
     this.summary_template = this.options.unset('summary_template') || "<div class='gsa-prototype-summary'>Results <strong>#{start} - #{end}</strong> of about <strong>#{total}</strong> for <strong>#{query}</strong>. (<strong>#{time}</strong> seconds)</div>";
     this.result_template = this.options.unset('result_template') || "<div class='gsa-prototype-result'><h3><a href='#{url}'>#{title}</a></h3><p>#{snippet}...</p></div>";
@@ -30,16 +84,6 @@ Gsa = Class.create({
     this.previous_link_template = this.options.unset('previous_link_template') || "<#{tag} #{link} class='#{klass}' id='page_previous'>&laquo; Previous</#{tag}>";
     this.next_link_template = this.options.unset('next_link_template') || "<#{tag} #{link} class='#{klass}' id='page_next'>Next &raquo;</#{tag}>";
     this.page_link_template = this.options.unset('page_link_template') || "<#{tag} #{link} class='#{klass}' id='page_#{page}'>#{page}</#{tag}>";
-    
-    //indicator
-    this.indicator = this.options.unset('indicator');
-    
-    //scroll element
-    this.scrollTo = this.options.unset('scrollTo') || $$('body')[0];
-    
-    this.form_element = $(this.options.unset('form'));
-    this.results_element = $(this.options.unset('results'));
-    this.observe_form = this.options.unset('observe_form') || true;
 
     //if the options hash has 'form' and 'results' keys and observing hasn't been explicitly disabled, go nuts
     if (this.observe_form && !Object.isUndefined(this.form_element) && !Object.isUndefined(this.results_element)) {
@@ -47,6 +91,10 @@ Gsa = Class.create({
     }
   },
   
+  /**
+   * Triggers a request to the GSA and fires the onSearch callback
+   * and shows the indicator
+   */
   _request: function(url) {
     this.request = new Json.Request(url, { onComplete: this._response.bind(this) });
     (this.options.get('onSearch') || Prototype.emptyFunction)(this);
@@ -55,6 +103,10 @@ Gsa = Class.create({
     return this.request;
   },
   
+  /**
+   * Triggered in a callback when a call to _request completed. This also fires
+   * the onComplete callback and hides the indicator
+   */
   _response: function () {
     this.results = new Gsa.Results(this.request.response);
     (this.options.get('onComplete') || Prototype.emptyFunction)(this);
@@ -63,6 +115,14 @@ Gsa = Class.create({
     return this.results;
   },
   
+  /**
+   * Takes a required query, and then an options hash. The give options hash is merged with the options
+   * given at initialization. The beforeSearch callback is triggered before _request() is called:
+   *
+   * Note on Callbacks:
+   * 
+   * Callbacks set at initiazation are run before callbacks defined on a call to search().
+   */
   search: function (q, options) {
     if (q == null || q.blank())
       return false;
@@ -78,6 +138,10 @@ Gsa = Class.create({
     return true;
   },
   
+  /**
+   * Perform a search using previously set options, requesting a specific page.
+   * Must be called after a call to search()
+   */
   page: function(page) {
     if (!Object.isUndefined(this.searchOptions)) {
       var num = 10;
@@ -93,6 +157,10 @@ Gsa = Class.create({
     }
   },
   
+  /**
+   * Request the next page of results
+   * Must be called after a call to search()
+   */
   next: function () {
     if (Object.isNumber(this.current_page)) {
       return this.page(this.current_page+1);
@@ -101,6 +169,10 @@ Gsa = Class.create({
     }
   },
   
+  /**
+   * Request the next page of results
+   * Must be called after a call to search() and a subsequent call to next() or page(n)
+   */
   previous: function () {
     if (Object.isNumber(this.current_page) && this.current_page > 1) {
       return this.page(this.current_page-1);
@@ -109,6 +181,10 @@ Gsa = Class.create({
     }
   },
   
+  /**
+   * Parse the given options hash to format the sort, getfields, requiredfields,
+   * and partialfields options into a format the GSA understands
+   */
   parseOptions: function (options) {
     var options = $H(options);
     //sort
@@ -151,6 +227,9 @@ Gsa = Class.create({
     return options;
   },
   
+  /**
+   * Construct the URI that will return the requested search results
+   */
   buildUri: function () {
     var uriOptions = this.searchOptions.clone();
     uriOptions.unset('beforeSearch');
@@ -182,6 +261,10 @@ Gsa = Class.create({
     return Builder.build(new String(this.pagination_template).interpolate(html));
   },
   
+  /**
+   * Parse a hash of fields and a mode "OR" or "AND" into a string the GSA understands.
+   * For use with the requiredfields and partialfields results filtering
+   */
   toFieldValues: function (hash, mode) {
     hash = $H(hash);
     var joinstring;
@@ -202,6 +285,11 @@ Gsa = Class.create({
     }).join(joinstring);
   },
 
+  /**
+   * Function that's used when obvserve_form is true and form and results options are set.
+   * On submit of the form, it's elements are serialized and passed to the GSA.
+   * A 'q' element is required.
+   */
   observeFormFunction: function(event){
     var form = Event.element(event);
     var hash = $H(form.serialize(true));
@@ -209,6 +297,11 @@ Gsa = Class.create({
     Event.stop(event);
   },
   
+  /**
+   * onComplete callback that's used when obvserve_form is true and form and results options are set.
+   * This interprets the results, builds dom elements from the given templates, and inserts them into the page.
+   * Pagination elements are also inserted that automgically wired.
+   */
   observeFormOnComplete: function(gsa) {
     Element.update(gsa.results_element);
     Element.insert(gsa.results_element, Builder.build(new String(gsa.summary_template).interpolate(gsa.results)));
@@ -218,7 +311,7 @@ Gsa = Class.create({
     Element.insert(gsa.results_element, gsa.buildPaginationHTML());
     $$('a.page_link').each(function(link) {
       link.observe('click', function(event) {
-        gsa.scrollTo.scrollTo();
+        gsa.scroll_to.scroll_to();
         var page_link = Event.element(event);
         gsa.page(page_link.innerHTML);
         Event.stop(event);
@@ -226,18 +319,18 @@ Gsa = Class.create({
     });
     $$('a#page_next').each(function(link) {
        link.observe('click', function(event) {
-         gsa.scrollTo.scrollTo();
+         gsa.scroll_to.scroll_to();
          gsa.next();
          Event.stop(event);
        })
      });
      $$('a#page_previous').each(function(link) {
         link.observe('click', function(event) {
-          gsa.scrollTo.scrollTo();
+          gsa.scroll_to.scroll_to();
           gsa.previous();
           Event.stop(event);
         })
       });
-      gsa.scrollTo.scrollTo();
+      gsa.scroll_to.scrollTo();
   }
 });
