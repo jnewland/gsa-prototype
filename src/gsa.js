@@ -311,7 +311,7 @@ Gsa = Class.create({
     Element.insert(gsa.results_element, gsa.buildPaginationHTML());
     $$('a.page_link').each(function(link) {
       link.observe('click', function(event) {
-        gsa.scroll_to.scroll_to();
+        gsa.scroll_to.scrollTo();
         var page_link = Event.element(event);
         gsa.page(page_link.innerHTML);
         Event.stop(event);
@@ -319,14 +319,14 @@ Gsa = Class.create({
     });
     $$('a#page_next').each(function(link) {
        link.observe('click', function(event) {
-         gsa.scroll_to.scroll_to();
+         gsa.scroll_to.scrollTo();
          gsa.next();
          Event.stop(event);
        })
      });
      $$('a#page_previous').each(function(link) {
         link.observe('click', function(event) {
-          gsa.scroll_to.scroll_to();
+          gsa.scroll_to.scrollTo();
           gsa.previous();
           Event.stop(event);
         })
