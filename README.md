@@ -30,7 +30,7 @@ gsa.search('jesse newland')
 true
 
 ```
-> gsa.results.first().get('title')
+gsa.results.first().get('title')
 ```
 
 "LexBlog IT Director talks about today&#39;s platform upgrade : Real **...**"
